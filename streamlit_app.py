@@ -1,10 +1,10 @@
 import streamlit as st
 import requests
 
-# Apollo.io API endpoint
-APOLLO_API_URL = "https://api.apollo.io/v1/people/search"
+# Apollo.io Enrich API endpoint
+APOLLO_ENRICH_API_URL = "https://api.apollo.io/v1/people/match"
 
-def search_apollo(email):
+def enrich_apollo(email):
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache"
@@ -15,7 +15,7 @@ def search_apollo(email):
         "email": email
     }
     
-    response = requests.post(APOLLO_API_URL, json=payload, headers=headers)
+    response = requests.post(APOLLO_ENRICH_API_URL, json=payload, headers=headers)
     
     if response.status_code == 200:
         return response.json()
@@ -23,27 +23,35 @@ def search_apollo(email):
         return None
 
 def main():
-    st.title("Apollo.io Email Search App")
+    st.title("Apollo.io Email Enrichment App")
 
     # Input for email
-    email = st.text_input("Enter an email address to search")
+    email = st.text_input("Enter an email address to enrich")
 
-    if st.button("Search"):
+    if st.button("Enrich"):
         if email:
-            with st.spinner("Searching..."):
-                result = search_apollo(email)
+            with st.spinner("Enriching..."):
+                result = enrich_apollo(email)
                 
-            if result:
-                if result['people']:
-                    person = result['people'][0]
-                    st.subheader("Search Results")
-                    st.write(f"Name: {person.get('name', 'N/A')}")
-                    st.write(f"Title: {person.get('title', 'N/A')}")
-                    st.write(f"Company: {person.get('organization', {}).get('name', 'N/A')}")
-                    st.write(f"LinkedIn URL: {person.get('linkedin_url', 'N/A')}")
-                    st.write(f"Location: {person.get('city', 'N/A')}, {person.get('state', 'N/A')}, {person.get('country', 'N/A')}")
-                else:
-                    st.warning("No results found for this email address.")
+            if result and result.get('person'):
+                person = result['person']
+                st.subheader("Enrichment Results")
+                st.write(f"Name: {person.get('name', 'N/A')}")
+                st.write(f"First Name: {person.get('first_name', 'N/A')}")
+                st.write(f"Last Name: {person.get('last_name', 'N/A')}")
+                st.write(f"Title: {person.get('title', 'N/A')}")
+                st.write(f"Company: {person.get('organization', {}).get('name', 'N/A')}")
+                st.write(f"LinkedIn URL: {person.get('linkedin_url', 'N/A')}")
+                st.write(f"Location: {person.get('city', 'N/A')}, {person.get('state', 'N/A')}, {person.get('country', 'N/A')}")
+                st.write(f"Industry: {person.get('industry', 'N/A')}")
+                st.write(f"Twitter URL: {person.get('twitter_url', 'N/A')}")
+                
+                if person.get('phone_numbers'):
+                    st.write("Phone Numbers:")
+                    for phone in person['phone_numbers']:
+                        st.write(f"- {phone}")
+            elif result:
+                st.warning("No enrichment data found for this email address.")
             else:
                 st.error("Error occurred while fetching data from Apollo.io API.")
         else:
