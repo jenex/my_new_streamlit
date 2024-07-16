@@ -41,7 +41,7 @@ def extend_keywords(industry):
 9. Automation and AI applications in the industry
 10. Software for improving efficiency or solving common industry problems
 
-For each category, provide at least 5-10 specific, targeted keywords or phrases that potential clients in this industry might use when searching for software development services."""
+For each category, provide at least 10-20 specific, targeted keywords or phrases that potential clients in this industry might use when searching for software development services."""
 
     headers = {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ For each category, provide at least 5-10 specific, targeted keywords or phrases 
     
     payload = {
         "model": "claude-3-5-sonnet-20240620",
-        "max_tokens": 1000,
+        "max_tokens": 3000,
         "messages": [{"role": "user", "content": prompt}]
     }
     
