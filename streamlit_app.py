@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 
-# Apollo.io Enrich API endpoint
 APOLLO_ENRICH_API_URL = "https://api.apollo.io/v1/people/match"
 
 def enrich_apollo(email):
@@ -25,8 +24,7 @@ def enrich_apollo(email):
 def main():
     st.title("Apollo.io Email Enrichment App")
 
-    # Input for email
-    email = st.text_input("Enter an email address to enrich")
+    email = st.text_input("Enter a business email address to enrich")
 
     if st.button("Enrich"):
         if email:
@@ -35,21 +33,44 @@ def main():
                 
             if result and result.get('person'):
                 person = result['person']
-                st.subheader("Enrichment Results")
-                st.write(f"Name: {person.get('name', 'N/A')}")
-                st.write(f"First Name: {person.get('first_name', 'N/A')}")
-                st.write(f"Last Name: {person.get('last_name', 'N/A')}")
-                st.write(f"Title: {person.get('title', 'N/A')}")
-                st.write(f"Company: {person.get('organization', {}).get('name', 'N/A')}")
-                st.write(f"LinkedIn URL: {person.get('linkedin_url', 'N/A')}")
-                st.write(f"Location: {person.get('city', 'N/A')}, {person.get('state', 'N/A')}, {person.get('country', 'N/A')}")
-                st.write(f"Industry: {person.get('industry', 'N/A')}")
-                st.write(f"Twitter URL: {person.get('twitter_url', 'N/A')}")
+                organization = person.get('organization', {})
                 
-                if person.get('phone_numbers'):
-                    st.write("Phone Numbers:")
-                    for phone in person['phone_numbers']:
-                        st.write(f"- {phone}")
+                st.header("Enrichment Results")
+                
+                # Person Information
+                st.subheader("Person Information")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**Name:** {person.get('name', 'N/A')}")
+                    st.write(f"**Title:** {person.get('title', 'N/A')}")
+                    st.write(f"**Seniority:** {person.get('seniority', 'N/A')}")
+                    st.write(f"**Departments:** {', '.join(person.get('departments', ['N/A']))}")
+                with col2:
+                    st.write(f"**LinkedIn:** {person.get('linkedin_url', 'N/A')}")
+                    st.write(f"**Twitter:** {person.get('twitter_url', 'N/A')}")
+                    if person.get('phone_numbers'):
+                        st.write("**Phone Numbers:**")
+                        for phone in person['phone_numbers']:
+                            st.write(f"- {phone}")
+                    else:
+                        st.write("**Phone Numbers:** N/A")
+                
+                # Company Information
+                st.subheader("Company Information")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**Company Name:** {organization.get('name', 'N/A')}")
+                    st.write(f"**Website:** {organization.get('website_url', 'N/A')}")
+                    st.write(f"**HQ Location:** {organization.get('city', 'N/A')}, {organization.get('state', 'N/A')}, {organization.get('country', 'N/A')}")
+                    st.write(f"**Industry:** {organization.get('industry', 'N/A')}")
+                with col2:
+                    st.write(f"**Employees:** {organization.get('estimated_num_employees', 'N/A')}")
+                    st.write(f"**Annual Revenue:** ${organization.get('estimated_annual_revenue', 'N/A')}")
+                    st.write(f"**Total Funding:** ${organization.get('total_funding', 'N/A')}")
+                    st.write(f"**Latest Funding:** {organization.get('latest_funding_round_type', 'N/A')}")
+                
+                st.write(f"**Keywords:** {', '.join(organization.get('keywords', ['N/A']))}")
+
             elif result:
                 st.warning("No enrichment data found for this email address.")
             else:
