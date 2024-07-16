@@ -1,14 +1,46 @@
 import streamlit as st
 import requests
-import json
+import time
 
 # API endpoints and keys
 APOLLO_ENRICH_API_URL = "https://api.apollo.io/v1/people/match"
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
-
-# Assuming you're storing API keys in Streamlit secrets
 APOLLO_API_KEY = st.secrets["apollo_api"]
 ANTHROPIC_API_KEY = st.secrets["anthropic_api"]
+
+# Custom CSS for the laser line animation
+st.markdown("""
+<style>
+@keyframes laser-move {
+    0% { left: -10%; width: 10%; }
+    100% { left: 100%; width: 10%; }
+}
+@keyframes glow-fade {
+    0% { opacity: 0.7; }
+    100% { opacity: 0; }
+}
+.laser-container {
+    width: 100%;
+    height: 4px;
+    background-color: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+}
+.laser-line {
+    height: 100%;
+    background: linear-gradient(to right, transparent, #ff00ff, transparent);
+    position: absolute;
+    animation: laser-move 1.5s linear infinite;
+}
+.glow {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #ff00ff, transparent);
+    position: absolute;
+    animation: glow-fade 1.5s linear infinite;
+}
+</style>
+""", unsafe_allow_html=True)
 
 def enrich_apollo(email):
     headers = {
@@ -125,9 +157,23 @@ def keyword_extender():
 
     if st.button("Extend Keywords"):
         if industry:
-            with st.spinner("Extending keywords..."):
-                keywords = extend_keywords(industry)
-                
+            # Create a placeholder for the animation
+            animation_placeholder = st.empty()
+            
+            # Start the animation
+            animation_placeholder.markdown("""
+            <div class="laser-container">
+                <div class="laser-line"></div>
+                <div class="glow"></div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Perform the keyword extension
+            keywords = extend_keywords(industry)
+            
+            # Stop the animation
+            animation_placeholder.empty()
+            
             if keywords:
                 st.success("Keywords extended successfully!")
                 st.text_area("Extended Keywords", keywords, height=300)
